@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import * as basicLightbox from 'basiclightbox';
 import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
 import imagesAPI from './services/images-api';
 import Searchbar from './Searchbar';
-import './App.css';
+import ImageGallery from './ImageGallery';
+import Modal from './Modal';
+import Button from './Button';
+import Spinner from './Loader';
 
 class App extends Component {
   state = {
@@ -12,47 +15,10 @@ class App extends Component {
     searchQuery: '',
     currentPage: 1,
     isLoading: false,
-    isModal: false,
+    showModal: false,
     error: null,
-    largeImageURL:
-      'https://pixabay.com/ru/photos/%d1%8d%d1%82%d0%b0%d0%b6-%d0%b2%d1%83%d0%b4-%d0%bf%d0%be%d0%bb-%d0%b4%d0%b5%d1%80%d0%b5%d0%b2%d1%8f%d0%bd%d0%bd%d1%8b%d0%b9-1256804/',
+    largeImageURL: '',
   };
-
-  // модальное окно
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      this.onClose();
-    }
-  };
-
-  handleBackdropClick = e => {
-    if (e.currentTarget === e.target) {
-      this.onClose();
-    }
-  };
-
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-  };
-
-  handleOriginalImage = e => {
-    const instance = basicLightbox.create(`
-    <img src=${this.state.largeImageURL} alt="" />
-`);
-
-    instance.show();
-  };
-  // модальное окно
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.searchQuery !== this.state.searchQuery) {
@@ -100,52 +66,48 @@ class App extends Component {
     this.fetchImages();
   };
 
+  toggleModal = e => {
+    if (!this.state.showModal) {
+      console.log(e.target.dataset.source);
+      this.setState({ largeImageURL: e.target.dataset.source });
+    }
+
+    if (this.state.showModal) {
+      this.setState({ largeImageURL: '' });
+    }
+
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
   render() {
-    console.log(this.state.images);
-    console.log(
-      imagesAPI.fetchImages(this.state.searchQuery, this.state.currentPage),
-    );
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
+        {this.state.isLoading && <Spinner />}
         <ToastContainer autoClose={3000} />
-
-        <ul className="ImageGallery">
-          {this.state.images.map(({ id, webformatURL, tag }) => (
-            <li key={id} className="ImageGalleryItem">
-              <img
-                src={webformatURL}
-                alt={tag}
-                className="ImageGalleryItem-image"
-              />
-            </li>
-          ))}
-        </ul>
-
+        <ImageGallery
+          images={this.state.images}
+          onClick={this.toggleModal}
+          largeImageURL={this.state.largeImageURL}
+        />
         {this.state.images.length > 0 && (
-          <button
-            onClick={this.handleNextPage}
-            id="btn"
-            type="button"
+          <Button
             className="Button"
-            data-action="load-more"
+            onClick={this.handleNextPage}
+            aria-label="Загрузить еще"
           >
-            <span
-              className="spinner-border spinner-border-sm spinner is-hidden"
-              role="status"
-              aria-hidden="true"
-            ></span>
-
             <span className="label">Load more</span>
-          </button>
+          </Button>
         )}
-
-        {this.state.isModal && (
-          <div onClick={this.handleBackdropClick} className="Overlay">
-            <div className="Modal">
-              <img src={this.state.largeImageURL} alt="" />
-            </div>
-          </div>
+        {this.state.showModal && (
+          <Modal
+            onClose={this.toggleModal}
+            largeImageURL={this.state.largeImageURL}
+            tag={this.state.images.tag}
+            images={this.state.images}
+          />
         )}
       </>
     );

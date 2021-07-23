@@ -1,21 +1,21 @@
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import Loader from 'react-loader-spinner';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-function Button() {
-  return (
-    <button type="submit" className="SearchForm-button">
-      <span className="SearchForm-button-label">
-        <Loader
-          type="Puff"
-          color="#00BFFF"
-          height={100}
-          width={100}
-          timeout={3000} //3 secs
-        />
-        Search
-      </span>
-    </button>
-  );
-}
+const Button = ({ children, onSubmit, ...allyProps }) => (
+  <button onSubmit={onSubmit} type="submit" {...allyProps}>
+    {children}
+  </button>
+);
+
+Button.defaultProps = {
+  onClick: () => null,
+  children: null,
+};
+
+Button.propTypes = {
+  onClick: PropTypes.func,
+  children: PropTypes.node,
+  'aria-label': PropTypes.string,
+};
 
 export default Button;

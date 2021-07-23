@@ -1,18 +1,19 @@
-// import ImageGalleryItem from '../ImageGalleryItem';
+import ImageGalleryItem from '../ImageGalleryItem';
 
-// function ImageGallery({ images }) {
-//   console.log(images.hits);
-//   return (
-//     <ul className="ImageGallery">
-//       {images.hits.map(image => (
-//         <ImageGalleryItem
-//           id={image.id}
-//           webformatURL={image.webformatURL}
-//           tags={image.tags}
-//         />
-//       ))}
-//     </ul>
-//   );
-// }
+function ImageGallery({ images, onClick }) {
+  return (
+    <ul className="ImageGallery">
+      {images.map(image => (
+        <ImageGalleryItem
+          onClick={onClick}
+          key={image.id}
+          webformatURL={image.webformatURL}
+          tags={image.tags}
+          largeImageURL={image.largeImageURL}
+        />
+      ))}
+    </ul>
+  );
+}
 
-// export default ImageGallery;
+export default ImageGallery;
