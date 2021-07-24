@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '../Button';
+import s from './Searchbar.module.css';
 
 class Searchbar extends Component {
   state = {
@@ -13,28 +14,27 @@ class Searchbar extends Component {
   };
 
   handleSubmit = e => {
+    const { searchQuery } = this.state;
     e.preventDefault();
 
-    if (this.state.searchQuery.trim() === '') {
+    if (searchQuery.trim() === '') {
       toast.error('Enter your request');
-
       return;
     }
-
-    this.props.onSubmit(this.state.searchQuery);
-    this.setState({ searchQuery: '' });
+    this.props.onSubmit(searchQuery);
   };
 
   render() {
+    const { searchQuery } = this.state;
     return (
-      <header className="Searchbar">
-        <form onSubmit={this.handleSubmit} className="SearchForm">
-          <Button className="SearchForm-button" />
+      <header className={s.Searchbar}>
+        <form onSubmit={this.handleSubmit} className={s.SearchForm}>
+          <Button className={s.SearchFormButton} />
           <input
-            className="SearchForm-input"
+            className={s.SearchFormInput}
             name="searchQuery"
             onChange={this.handleNameImageChange}
-            value={this.state.searchQuery}
+            value={searchQuery}
             type="text"
             autoComplete="off"
             autoFocus
