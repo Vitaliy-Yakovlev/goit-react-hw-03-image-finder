@@ -27,12 +27,14 @@ class App extends Component {
   }
 
   fetchImages = () => {
+    const { searchQuery, currentPage } = this.state;
+
     this.setState({ isLoading: true });
 
     imagesAPI
       .fetchImages({
-        searchQuery: this.state.searchQuery,
-        currentPage: this.state.currentPage,
+        searchQuery,
+        currentPage,
       })
       .then(images => {
         if (!images.hits.length) {
@@ -42,6 +44,7 @@ class App extends Component {
 
         this.setState(prevState => ({
           images: [...prevState.images, ...images.hits],
+          currentPage: prevState.currentPage + 1,
         }));
 
         if (this.state.currentPage >= 2) {
@@ -61,18 +64,14 @@ class App extends Component {
     this.setState({ searchQuery, currentPage: 1, images: [] });
   };
 
-  handleNextPage = e => {
-    this.setState({ currentPage: this.state.currentPage + 1 });
-    this.fetchImages();
-  };
-
   toggleModal = e => {
-    if (!this.state.showModal) {
-      console.log(e.target.dataset.source);
+    const { showModal } = this.state;
+
+    if (!showModal) {
       this.setState({ largeImageURL: e.target.dataset.source });
     }
 
-    if (this.state.showModal) {
+    if (showModal) {
       this.setState({ largeImageURL: '' });
     }
 
@@ -82,31 +81,36 @@ class App extends Component {
   };
 
   render() {
+    const { isLoading, images, largeImageURL, showModal } = this.state;
+
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
-        {this.state.isLoading && <Spinner />}
         <ToastContainer autoClose={3000} />
+        {isLoading && <Spinner />}
+
         <ImageGallery
-          images={this.state.images}
+          images={images}
           onClick={this.toggleModal}
-          largeImageURL={this.state.largeImageURL}
+          largeImageURL={largeImageURL}
         />
-        {this.state.images.length > 0 && (
+
+        {images.length > 0 && (
           <Button
-            className="Button"
-            onClick={this.handleNextPage}
+            className="ButtonLoad"
+            onClick={this.fetchImages}
             aria-label="Загрузить еще"
           >
             <span className="label">Load more</span>
           </Button>
         )}
-        {this.state.showModal && (
+
+        {showModal && (
           <Modal
             onClose={this.toggleModal}
-            largeImageURL={this.state.largeImageURL}
-            tag={this.state.images.tag}
-            images={this.state.images}
+            largeImageURL={largeImageURL}
+            tag={images.tag}
+            images={images}
           />
         )}
       </>

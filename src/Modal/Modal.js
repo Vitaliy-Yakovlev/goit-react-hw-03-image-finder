@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
+import s from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
 class Modal extends Component {
+  static propTypes = {
+    onClick: PropTypes.func.isRequired,
+  };
+
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown);
   }
@@ -25,10 +31,12 @@ class Modal extends Component {
   };
 
   render() {
+    const { largeImageURL, images } = this.props;
+
     return createPortal(
-      <div className="Overlay" onClick={this.handleBackdropClick}>
-        <div className="Modal">
-          <img src={this.props.largeImageURL} alt={this.props.images.tag} />
+      <div className={s.Overlay} onClick={this.handleBackdropClick}>
+        <div className={s.Modal}>
+          <img src={largeImageURL} alt={images.tag} width="800" height="600" />
         </div>
       </div>,
 
